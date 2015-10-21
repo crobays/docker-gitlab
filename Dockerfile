@@ -1,19 +1,5 @@
 FROM quay.io/sameersbn/ubuntu:14.04.20151013
-MAINTAINER sameer@damagehead.com
-
-ENV GITLAB_VERSION=8.0.5 \
-    GITLAB_SHELL_VERSION=2.6.5 \
-    GITLAB_GIT_HTTP_SERVER_VERSION=0.2.14 \
-    GITLAB_USER="git" \
-    GITLAB_HOME="/home/git" \
-    GITLAB_LOG_DIR="/var/log/gitlab" \
-    SETUP_DIR="/var/cache/gitlab" \
-    RAILS_ENV=production
-
-ENV GITLAB_INSTALL_DIR="${GITLAB_HOME}/gitlab" \
-    GITLAB_SHELL_INSTALL_DIR="${GITLAB_HOME}/gitlab-shell" \
-    GITLAB_GIT_HTTP_SERVER_INSTALL_DIR="${GITLAB_HOME}/gitlab-git-http-server" \
-    GITLAB_DATA_DIR="${GITLAB_HOME}/data"
+MAINTAINER maikel@userex.nl
 
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv E1DD270288B4E6030699E45FA1715D88E1DF1F24 \
  && echo "deb http://ppa.launchpad.net/git-core/ppa/ubuntu trusty main" >> /etc/apt/sources.list \
@@ -35,6 +21,21 @@ RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv E1DD270288B4E60
  && dpkg-reconfigure locales \
  && gem install --no-document bundler \
  && rm -rf /var/lib/apt/lists/*
+
+ENV GITLAB_VERSION=8.0.5-custom \
+    GITLAB_SHELL_VERSION=2.6.5 \
+    GITLAB_GIT_HTTP_SERVER_VERSION=0.2.14 \
+    GITLAB_USER="git" \
+    GITLAB_HOME="/home/git" \
+    GITLAB_LOG_DIR="/var/log/gitlab" \
+    SETUP_DIR="/var/cache/gitlab" \
+    RAILS_ENV=production
+
+ENV GITLAB_SOURCE_REPO="https://github.com/crobays/gitlab-ce.git" \
+	GITLAB_INSTALL_DIR="${GITLAB_HOME}/gitlab" \
+    GITLAB_SHELL_INSTALL_DIR="${GITLAB_HOME}/gitlab-shell" \
+    GITLAB_GIT_HTTP_SERVER_INSTALL_DIR="${GITLAB_HOME}/gitlab-git-http-server" \
+    GITLAB_DATA_DIR="${GITLAB_HOME}/data"
 
 COPY assets/setup/ ${SETUP_DIR}/
 RUN bash ${SETUP_DIR}/install.sh
