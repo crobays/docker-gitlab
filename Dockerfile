@@ -32,7 +32,7 @@ ENV GITLAB_VERSION=8.1.2-custom \
     RAILS_ENV=production
 
 ENV GITLAB_SOURCE_REPO="https://github.com/crobays/gitlab-ce.git" \
-	GITLAB_INSTALL_DIR="${GITLAB_HOME}/gitlab" \
+    GITLAB_INSTALL_DIR="${GITLAB_HOME}/gitlab" \
     GITLAB_SHELL_INSTALL_DIR="${GITLAB_HOME}/gitlab-shell" \
     GITLAB_GIT_HTTP_SERVER_INSTALL_DIR="${GITLAB_HOME}/gitlab-git-http-server" \
     GITLAB_DATA_DIR="${GITLAB_HOME}/data"
