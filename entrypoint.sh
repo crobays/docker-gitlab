@@ -312,7 +312,7 @@ if [[ ${USERMAP_UID} != ${USERMAP_ORIG_UID} ]] || [[ ${USERMAP_GID} != ${USERMAP
   echo "Adapting uid and gid for ${GITLAB_USER}:${GITLAB_USER} to $USERMAP_UID:$USERMAP_GID"
   groupmod -g ${USERMAP_GID} ${GITLAB_USER}
   sed -i -e "s/:${USERMAP_ORIG_UID}:${USERMAP_GID}:/:${USERMAP_UID}:${USERMAP_GID}:/" /etc/passwd
-  find ${GITLAB_HOME} -path ${GITLAB_DATA_DIR}/\* -prune -o -print0 | xargs -0 chown -h ${GITLAB_USER}:${GITLAB_USER}
+  find ${GITLAB_HOME} -path ${GITLAB_DATA_DIR}/\* -prune -o -print0 | xargs -0 chown -h ${GITLAB_USER}:${GITLAB_USER} || echo 'Could not change ownership.'
 fi
 
 if [[ ! -e ${GITLAB_DATA_DIR}/ssh/ssh_host_rsa_key ]]; then
@@ -325,16 +325,16 @@ fi
 ## fix permissions of ssh key files
 chmod 0600 ${GITLAB_DATA_DIR}/ssh/*_key
 chmod 0644 ${GITLAB_DATA_DIR}/ssh/*.pub
-chown -R root:root ${GITLAB_DATA_DIR}/ssh
+chown -R root:root ${GITLAB_DATA_DIR}/ssh || echo 'Could not change ownership.'
 
 # configure sshd to pick up the host keys from ${GITLAB_DATA_DIR}/ssh/
 sed -i 's,HostKey /etc/ssh/,HostKey '"${GITLAB_DATA_DIR}"'/ssh/,g' -i /etc/ssh/sshd_config
 
 # populate ${GITLAB_LOG_DIR}
-mkdir -m 0755 -p ${GITLAB_LOG_DIR}/supervisor   && chown -R root:root ${GITLAB_LOG_DIR}/supervisor
-mkdir -m 0755 -p ${GITLAB_LOG_DIR}/nginx        && chown -R ${GITLAB_USER}:${GITLAB_USER} ${GITLAB_LOG_DIR}/nginx
-mkdir -m 0755 -p ${GITLAB_LOG_DIR}/gitlab       && chown -R ${GITLAB_USER}:${GITLAB_USER} ${GITLAB_LOG_DIR}/gitlab
-mkdir -m 0755 -p ${GITLAB_LOG_DIR}/gitlab-shell && chown -R ${GITLAB_USER}:${GITLAB_USER} ${GITLAB_LOG_DIR}/gitlab-shell
+mkdir -m 0755 -p ${GITLAB_LOG_DIR}/supervisor   && chown -R root:root ${GITLAB_LOG_DIR}/supervisor || echo 'Could not change ownership.'
+mkdir -m 0755 -p ${GITLAB_LOG_DIR}/nginx        && chown -R ${GITLAB_USER}:${GITLAB_USER} ${GITLAB_LOG_DIR}/nginx || echo 'Could not change ownership.'
+mkdir -m 0755 -p ${GITLAB_LOG_DIR}/gitlab       && chown -R ${GITLAB_USER}:${GITLAB_USER} ${GITLAB_LOG_DIR}/gitlab || echo 'Could not change ownership.'
+mkdir -m 0755 -p ${GITLAB_LOG_DIR}/gitlab-shell && chown -R ${GITLAB_USER}:${GITLAB_USER} ${GITLAB_LOG_DIR}/gitlab-shell || echo 'Could not change ownership.'
 
 cd ${GITLAB_INSTALL_DIR}
 
@@ -820,7 +820,7 @@ chmod 0600 config/secrets.yml
 
 # fix permission and ownership of ${GITLAB_DATA_DIR}
 chmod 755 ${GITLAB_DATA_DIR}
-chown ${GITLAB_USER}:${GITLAB_USER} ${GITLAB_DATA_DIR}
+chown ${GITLAB_USER}:${GITLAB_USER} ${GITLAB_DATA_DIR} || echo 'Could not change ownership.'
 
 # set executable flags on ${GITLAB_DATA_DIR} (needed if mounted from a data-only
 # container using --volumes-from)
@@ -828,14 +828,14 @@ chmod +x ${GITLAB_DATA_DIR}
 
 # create the repositories directory and make sure it has the right permissions
 mkdir -p ${GITLAB_REPOS_DIR}/
-chown ${GITLAB_USER}:${GITLAB_USER} ${GITLAB_REPOS_DIR}/
+chown ${GITLAB_USER}:${GITLAB_USER} ${GITLAB_REPOS_DIR}/ || echo 'Could not change ownership.'
 chmod ug+rwX,o-rwx ${GITLAB_REPOS_DIR}/
 sudo -HEu ${GITLAB_USER} chmod g+s ${GITLAB_REPOS_DIR}/
 
 # create build traces directory
 mkdir -p ${GITLAB_BUILDS_DIR}
 chmod u+rwX ${GITLAB_BUILDS_DIR}
-chown ${GITLAB_USER}:${GITLAB_USER} ${GITLAB_BUILDS_DIR}
+chown ${GITLAB_USER}:${GITLAB_USER} ${GITLAB_BUILDS_DIR} || echo 'Could not change ownership.'
 
 # symlink builds/ -> ${GITLAB_BUILDS_DIR}
 rm -rf builds
@@ -843,19 +843,19 @@ ln -sf ${GITLAB_BUILDS_DIR} builds
 
 # create the backups directory
 mkdir -p ${GITLAB_BACKUP_DIR}
-chown ${GITLAB_USER}:${GITLAB_USER} ${GITLAB_BACKUP_DIR}
+chown ${GITLAB_USER}:${GITLAB_USER} ${GITLAB_BACKUP_DIR} || echo 'Could not change ownership.'
 
 # create the uploads directory
 mkdir -p ${GITLAB_DATA_DIR}/uploads/
 chmod 0750 ${GITLAB_DATA_DIR}/uploads/
-chown ${GITLAB_USER}:${GITLAB_USER} ${GITLAB_DATA_DIR}/uploads/
+chown ${GITLAB_USER}:${GITLAB_USER} ${GITLAB_DATA_DIR}/uploads/ || echo 'Could not change ownership.'
 
 # create the .ssh directory
 mkdir -p ${GITLAB_DATA_DIR}/.ssh/
 touch ${GITLAB_DATA_DIR}/.ssh/authorized_keys
 chmod 700 ${GITLAB_DATA_DIR}/.ssh
 chmod 600 ${GITLAB_DATA_DIR}/.ssh/authorized_keys
-chown -R ${GITLAB_USER}:${GITLAB_USER} ${GITLAB_DATA_DIR}/.ssh
+chown -R ${GITLAB_USER}:${GITLAB_USER} ${GITLAB_DATA_DIR}/.ssh || echo 'Could not change ownership.'
 
 appInit () {
   # due to the nature of docker and its use cases, we allow some time
@@ -993,18 +993,18 @@ appSanitize () {
   chmod -R ug+rwX,o-rwx ${GITLAB_REPOS_DIR}/
   chmod -R ug-s ${GITLAB_REPOS_DIR}/
   find ${GITLAB_REPOS_DIR}/ -type d -print0 | xargs -0 chmod g+s
-  chown -R ${GITLAB_USER}:${GITLAB_USER} ${GITLAB_REPOS_DIR}
+  chown -R ${GITLAB_USER}:${GITLAB_USER} ${GITLAB_REPOS_DIR} || echo 'Could not change ownership.'
 
   echo "Checking builds directories permissions..."
   sudo -HEu ${GITLAB_USER} mkdir -p ${GITLAB_BUILDS_DIR}
   chmod -R u+rwX ${GITLAB_BUILDS_DIR}
-  chown -R ${GITLAB_USER}:${GITLAB_USER} ${GITLAB_BUILDS_DIR}
+  chown -R ${GITLAB_USER}:${GITLAB_USER} ${GITLAB_BUILDS_DIR} || echo 'Could not change ownership.'
 
   echo "Checking uploads directory permissions..."
   find ${GITLAB_DATA_DIR}/uploads -type f -exec chmod 0644 {} \;
   find ${GITLAB_DATA_DIR}/uploads -type d -not -path ${GITLAB_DATA_DIR}/uploads -exec chmod 0755 {} \;
   chmod 0750 ${GITLAB_DATA_DIR}/uploads/
-  chown ${GITLAB_USER}:${GITLAB_USER} ${GITLAB_DATA_DIR}/uploads/
+  chown ${GITLAB_USER}:${GITLAB_USER} ${GITLAB_DATA_DIR}/uploads/ || echo 'Could not change ownership.'
 
   echo "Creating gitlab-shell hooks..."
   sudo -HEu ${GITLAB_USER} ${GITLAB_SHELL_INSTALL_DIR}/bin/create-hooks
