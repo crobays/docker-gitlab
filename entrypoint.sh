@@ -342,6 +342,23 @@ cd ${GITLAB_INSTALL_DIR}
 # copy configuration templates
 case ${GITLAB_HTTPS} in
   true)
+    # Add a self-singed SSL cert
+    if [[ ! -f ${SSL_CERTIFICATE_PATH} ]]; then
+      mkdir -p $(basename ${SSL_CERTIFICATE_PATH})
+      openssl genrsa -aes128 -out ${SSL_CERTIFICATE_PATH}
+      openssl req \
+          -x509 \
+          -newkey rsa:2048 \
+          -passout pass:${GITLAB_SECRETS_DB_KEY_BASE} \
+          -keyout ${SSL_KEY_PATH} \
+          -out ${SSL_CERTIFICATE_PATH} \
+          -subj "/C=--/ST=${GITLAB_TIMEZONE}/L=${GITLAB_TIMEZONE}/O=${GITLAB_HOST}/OU=${GITLAB_HOST}/CN=${GITLAB_HOST}"
+    fi
+
+    if [[ ! -f ${SSL_DHPARAM_PATH} ]]; then
+      openssl dhparam -out ${SSL_DHPARAM_PATH} 2048
+    fi
+
     if [[ -f ${SSL_CERTIFICATE_PATH} && -f ${SSL_KEY_PATH} && -f ${SSL_DHPARAM_PATH} ]]; then
       cp ${SYSCONF_TEMPLATES_DIR}/nginx/gitlab-ssl /etc/nginx/sites-enabled/gitlab
     else
