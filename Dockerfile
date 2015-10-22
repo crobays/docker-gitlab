@@ -22,7 +22,7 @@ RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv E1DD270288B4E60
  && gem install --no-document bundler \
  && rm -rf /var/lib/apt/lists/*
 
-ENV GITLAB_VERSION=8.0.5-custom \
+ENV GITLAB_VERSION=8.1.0-custom \
     GITLAB_SHELL_VERSION=2.6.5 \
     GITLAB_GIT_HTTP_SERVER_VERSION=0.2.14 \
     GITLAB_USER="git" \
@@ -32,7 +32,7 @@ ENV GITLAB_VERSION=8.0.5-custom \
     RAILS_ENV=production
 
 ENV GITLAB_SOURCE_REPO="https://github.com/crobays/gitlab-ce.git" \
-	GITLAB_INSTALL_DIR="${GITLAB_HOME}/gitlab" \
+    GITLAB_INSTALL_DIR="${GITLAB_HOME}/gitlab" \
     GITLAB_SHELL_INSTALL_DIR="${GITLAB_HOME}/gitlab-shell" \
     GITLAB_GIT_HTTP_SERVER_INSTALL_DIR="${GITLAB_HOME}/gitlab-git-http-server" \
     GITLAB_DATA_DIR="${GITLAB_HOME}/data"
