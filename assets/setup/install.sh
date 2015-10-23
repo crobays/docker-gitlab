@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-GEM_CACHE_DIR="${SETUP_DIR}/cache"
+GEM_CACHE_DIR="${SETUP_DIR}/cache.${GITLAB_VERSION}"
 
 # add golang1.5 ppa
 apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv B0B8B106A0CA2F79FBB616DBA65E2E5D742A38EE
@@ -60,7 +60,7 @@ sudo -u git -H make
 # shallow clone gitlab-ce
 echo "Cloning gitlab-ce v.${GITLAB_VERSION}..."
 sudo -HEu ${GITLAB_USER} git clone -q -b v${GITLAB_VERSION} --depth 1 \
-  https://github.com/gitlabhq/gitlabhq.git ${GITLAB_INSTALL_DIR}
+  ${GITLAB_SOURCE_REPO} ${GITLAB_INSTALL_DIR}
 
 cd ${GITLAB_INSTALL_DIR}
 
@@ -78,7 +78,7 @@ sudo -HEu ${GITLAB_USER} cp config/initializers/smtp_settings.rb.sample config/i
 
 # install gems required by gitlab, use local cache if available
 if [[ -d ${GEM_CACHE_DIR} ]]; then
-  mv ${GEM_CACHE_DIR} vendor/
+  mv ${GEM_CACHE_DIR} vendor/cache
   chown -R ${GITLAB_USER}:${GITLAB_USER} vendor/cache
 fi
 sudo -HEu ${GITLAB_USER} bundle install -j$(nproc) --deployment --without development test aws
