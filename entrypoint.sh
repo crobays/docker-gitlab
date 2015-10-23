@@ -346,15 +346,21 @@ case ${GITLAB_HTTPS} in
   true)
     # Add a self-singed SSL cert
     if [[ ! -f ${SSL_CERTIFICATE_PATH} ]]; then
-      mkdir -p $(basename ${SSL_CERTIFICATE_PATH})
-      openssl genrsa -aes128 -out ${SSL_CERTIFICATE_PATH}
-      openssl req \
-          -x509 \
-          -newkey rsa:2048 \
+      echo "Making self-signed certificate..."
+      mkdir -p $(dirname ${SSL_CERTIFICATE_PATH})
+      openssl genrsa \
+          -aes128 \
           -passout pass:${GITLAB_SECRETS_DB_KEY_BASE} \
-          -keyout ${SSL_KEY_PATH} \
-          -out ${SSL_CERTIFICATE_PATH} \
-          -subj "/C=--/ST=${GITLAB_TIMEZONE}/L=${GITLAB_TIMEZONE}/O=${GITLAB_HOST}/OU=${GITLAB_HOST}/CN=${GITLAB_HOST}"
+          -out ${SSL_CERTIFICATE_PATH}
+      openssl req \
+        -new \
+        -newkey rsa:4096 \
+        -days 999999 \
+        -nodes \
+        -x509 \
+        -subj "/C=--/ST=${GITLAB_TIMEZONE}/L=${GITLAB_TIMEZONE}/O=${GITLAB_HOST}/OU=${GITLAB_HOST}/CN=${GITLAB_HOST}" \
+        -keyout ${SSL_KEY_PATH} \
+        -out ${SSL_CERTIFICATE_PATH}
     fi
 
     if [[ ! -f ${SSL_DHPARAM_PATH} ]]; then
