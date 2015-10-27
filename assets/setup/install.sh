@@ -60,7 +60,7 @@ sudo -u git -H make
 # shallow clone gitlab-ce
 echo "Cloning gitlab-ce v.${GITLAB_VERSION}..."
 sudo -HEu ${GITLAB_USER} git clone -q -b v${GITLAB_VERSION} --depth 1 \
-  https://github.com/gitlabhq/gitlabhq.git ${GITLAB_INSTALL_DIR}
+  ${GITLAB_SOURCE_REPO} ${GITLAB_INSTALL_DIR}
 
 cd ${GITLAB_INSTALL_DIR}
 
