@@ -1,5 +1,5 @@
 FROM quay.io/sameersbn/ubuntu:14.04.20151023
-MAINTAINER sameer@damagehead.com
+MAINTAINER maikel@userex.nl
 
 ENV GITLAB_VERSION=8.1.3 \
     GITLAB_SHELL_VERSION=2.6.5 \
@@ -10,7 +10,8 @@ ENV GITLAB_VERSION=8.1.3 \
     SETUP_DIR="/var/cache/gitlab" \
     RAILS_ENV=production
 
-ENV GITLAB_INSTALL_DIR="${GITLAB_HOME}/gitlab" \
+ENV GITLAB_SOURCE_REPO="https://github.com/crobays/gitlab-ce.git" \
+    GITLAB_INSTALL_DIR="${GITLAB_HOME}/gitlab" \
     GITLAB_SHELL_INSTALL_DIR="${GITLAB_HOME}/gitlab-shell" \
     GITLAB_GIT_HTTP_SERVER_INSTALL_DIR="${GITLAB_HOME}/gitlab-git-http-server" \
     GITLAB_DATA_DIR="${GITLAB_HOME}/data"
@@ -47,5 +48,6 @@ EXPOSE 22/tcp 80/tcp 443/tcp
 
 VOLUME ["${GITLAB_DATA_DIR}", "${GITLAB_LOG_DIR}"]
 WORKDIR ${GITLAB_INSTALL_DIR}
+
 ENTRYPOINT ["/sbin/entrypoint.sh"]
 CMD ["app:start"]
