@@ -42,25 +42,34 @@ sudo -HEu ${GITLAB_USER} mkdir -p ${GITLAB_DATA_DIR}
 # configure git for the 'git' user
 sudo -HEu ${GITLAB_USER} git config --global core.autocrlf input
 
+if [[ -f ${SETUP_DIR}/gitlab-shell-repo.txt ]]; then
+  GITLAB_SHELL_REPO=`cat ${SETUP_DIR}/gitlab-shell-repo.txt`
+fi
 # install gitlab-shell
 echo "Cloning gitlab-shell v.${GITLAB_SHELL_VERSION}..."
 sudo -u git -H git clone -q -b v${GITLAB_SHELL_VERSION} --depth 1 \
-  https://github.com/gitlabhq/gitlab-shell.git ${GITLAB_SHELL_INSTALL_DIR}
+  ${GITLAB_SHELL_REPO:-https://github.com/gitlabhq/gitlab-shell.git} ${GITLAB_SHELL_INSTALL_DIR}
 
 cd ${GITLAB_SHELL_INSTALL_DIR}
 sudo -u git -H cp -a config.yml.example config.yml
 sudo -u git -H ./bin/install
 
+if [[ -f ${SETUP_DIR}/gitlab-git-http-server-repo.txt ]]; then
+  GITLAB_GIT_HTTP_SERVER_REPO=`cat ${SETUP_DIR}/gitlab-git-http-server-repo.txt`
+fi
 echo "Cloning gitlab-git-http-server v.${GITLAB_GIT_HTTP_SERVER_VERSION}..."
 sudo -u git -H git clone -q -b ${GITLAB_GIT_HTTP_SERVER_VERSION} --depth 1 \
-  https://gitlab.com/gitlab-org/gitlab-git-http-server.git ${GITLAB_GIT_HTTP_SERVER_INSTALL_DIR}
+  ${GITLAB_GIT_HTTP_SERVER_REPO:-https://gitlab.com/gitlab-org/gitlab-git-http-server.git} ${GITLAB_GIT_HTTP_SERVER_INSTALL_DIR}
 cd ${GITLAB_GIT_HTTP_SERVER_INSTALL_DIR}
 sudo -u git -H make
 
+if [[ -f ${SETUP_DIR}/gitlab-source-repo.txt ]]; then
+  GITLAB_SOURCE_REPO=`cat ${SETUP_DIR}/gitlab-source-repo.txt`
+fi
 # shallow clone gitlab-ce
 echo "Cloning gitlab-ce v.${GITLAB_VERSION}..."
 sudo -HEu ${GITLAB_USER} git clone -q -b v${GITLAB_VERSION} --depth 1 \
-  https://github.com/gitlabhq/gitlabhq.git ${GITLAB_INSTALL_DIR}
+  ${GITLAB_SOURCE_REPO:-https://github.com/gitlabhq/gitlabhq.git} ${GITLAB_INSTALL_DIR}
 
 cd ${GITLAB_INSTALL_DIR}
 
