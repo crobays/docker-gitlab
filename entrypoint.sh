@@ -16,6 +16,7 @@ GITLAB_SSH_HOST=${GITLAB_SSH_HOST:-$GITLAB_HOST}
 GITLAB_SSH_PORT=${GITLAB_SSH_PORT:-$GITLAB_SHELL_SSH_PORT} # for backwards compatibility
 GITLAB_SSH_PORT=${GITLAB_SSH_PORT:-22}
 GITLAB_HTTPS=${GITLAB_HTTPS:-false}
+GITLAB_SSL=${GITLAB_SSL:-$GITLAB_HTTPS}
 GITLAB_TIMEZONE=${GITLAB_TIMEZONE:-UTC}
 GITLAB_USERNAME_CHANGE=${GITLAB_USERNAME_CHANGE:-true}
 GITLAB_CREATE_GROUP=${GITLAB_CREATE_GROUP:-true}
@@ -342,7 +343,7 @@ mkdir -m 0755 -p ${GITLAB_LOG_DIR}/gitlab-shell && chown -R ${GITLAB_USER}:${GIT
 cd ${GITLAB_INSTALL_DIR}
 
 # copy configuration templates
-case ${GITLAB_HTTPS} in
+case ${GITLAB_SSL} in
   true)
     if [[ -f ${SSL_CERTIFICATE_PATH} && -f ${SSL_KEY_PATH} && -f ${SSL_DHPARAM_PATH} ]]; then
       cp ${SYSCONF_TEMPLATES_DIR}/nginx/gitlab-ssl /etc/nginx/sites-enabled/gitlab
@@ -367,7 +368,7 @@ sudo -HEu ${GITLAB_USER} cp ${SYSCONF_TEMPLATES_DIR}/gitlabhq/rack_attack.rb    
 sudo -HEu ${GITLAB_USER} cp ${SYSCONF_TEMPLATES_DIR}/gitlabhq/smtp_settings.rb  config/initializers/smtp_settings.rb
 
 # override default configuration templates with user templates
-case ${GITLAB_HTTPS} in
+case ${GITLAB_SSL} in
   true)
     if [[ -f ${SSL_CERTIFICATE_PATH} && -f ${SSL_KEY_PATH} && -f ${SSL_DHPARAM_PATH} ]]; then
       [[ -f ${USERCONF_TEMPLATES_DIR}/nginx/gitlab-ssl ]] && cp ${USERCONF_TEMPLATES_DIR}/nginx/gitlab-ssl /etc/nginx/sites-enabled/gitlab
